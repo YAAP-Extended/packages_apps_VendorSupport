@@ -18,12 +18,12 @@ package com.android.settings.preferences;
 import android.content.Context;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import androidx.preference.SwitchPreference;
 
 import com.android.settings.utils.AdaptivePreferenceUtils;
 
-import lineageos.preference.SelfRemovingSwitchPreference;
-
-public class GlobalSettingSwitchPreference extends SelfRemovingSwitchPreference {
+public class GlobalSettingSwitchPreference extends SwitchPreference {
+    private boolean mShouldRemove = false;
 
     public GlobalSettingSwitchPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -45,6 +45,12 @@ public class GlobalSettingSwitchPreference extends SelfRemovingSwitchPreference 
         if (layoutRes != -1) {
             setLayoutResource(layoutRes);
         }
+        setShouldDisableView(true);
+    }
+
+    @Override
+    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
+        setChecked(getBoolean(getKey(), false));
     }
 
     @Override
@@ -52,14 +58,24 @@ public class GlobalSettingSwitchPreference extends SelfRemovingSwitchPreference 
         return Settings.Global.getString(getContext().getContentResolver(), getKey()) != null;
     }
 
-    @Override
-    protected void putBoolean(String key, boolean value) {
-        Settings.Global.putInt(getContext().getContentResolver(), key, value ? 1 : 0);
+    protected boolean getBoolean(String key, boolean defaultValue) {
+        return Settings.Global.getInt(getContext().getContentResolver(), key, defaultValue ? 1 : 0) != 0;
     }
 
     @Override
-    protected boolean getBoolean(String key, boolean defaultValue) {
-        return Settings.Global.getInt(getContext().getContentResolver(), key, defaultValue ? 1 : 0)
-                != 0;
+    public boolean persistBoolean(boolean value) {
+        if (shouldPersist()) {
+            Settings.Global.putInt(getContext().getContentResolver(), getKey(), value ? 1 : 0);
+            return true;
+        }
+        return false;
+    }
+
+    public void setShouldRemove(boolean remove) {
+        mShouldRemove = remove;
+    }
+
+    public boolean shouldRemove() {
+        return mShouldRemove;
     }
 }

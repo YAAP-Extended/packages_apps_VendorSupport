@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 risingOS Android Project
+ * Copyright (C) 2016-2019 crDroid Android Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 package com.android.settings.preferences;
 
 import android.content.Context;
+import android.provider.Settings;
 import android.util.AttributeSet;
+import androidx.preference.ListPreference;
 
 import com.android.settings.utils.AdaptivePreferenceUtils;
 
-import lineageos.preference.LineageSystemSettingListPreference;
-
-public class RisingSystemSettingListPreference extends LineageSystemSettingListPreference {
+public class RisingSystemSettingListPreference extends ListPreference {
+    private boolean mShouldRemove = false;
 
     public RisingSystemSettingListPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -34,10 +35,46 @@ public class RisingSystemSettingListPreference extends LineageSystemSettingListP
         init(context, attrs);
     }
 
+    public RisingSystemSettingListPreference(Context context) {
+        super(context);
+        init(context, null);
+    }
+
     private void init(Context context, AttributeSet attrs) {
         int layoutRes = AdaptivePreferenceUtils.getLayoutResourceId(context, attrs);
         if (layoutRes != -1) {
             setLayoutResource(layoutRes);
         }
+        setShouldDisableView(true);
+    }
+
+    @Override
+    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
+        setValue(getPersistedString((String) defaultValue));
+    }
+
+    @Override
+    protected boolean persistString(String value) {
+        if (shouldPersist()) {
+            Settings.System.putString(getContext().getContentResolver(), getKey(), value);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected String getPersistedString(String defaultReturnValue) {
+        if (!shouldPersist()) {
+            return defaultReturnValue;
+        }
+        return Settings.System.getString(getContext().getContentResolver(), getKey());
+    }
+
+    public void setShouldRemove(boolean remove) {
+        mShouldRemove = remove;
+    }
+
+    public boolean shouldRemove() {
+        return mShouldRemove;
     }
 }

@@ -16,19 +16,46 @@
 package com.android.settings.preferences.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
+import androidx.preference.Preference;
 
 import com.android.settings.utils.AdaptivePreferenceUtils;
 
-import lineageos.preference.RemotePreference;
-
-public class AdaptiveRemotePreference extends RemotePreference {
+public class AdaptiveRemotePreference extends Preference {
+    private String mTargetPackage;
+    private String mTargetClass;
+    private String mAction;
 
     public AdaptiveRemotePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         int layoutRes = AdaptivePreferenceUtils.getLayoutResourceId(context, attrs);
         if (layoutRes != -1) {
             setLayoutResource(layoutRes);
+        }
+    }
+
+    public void setTargetPackage(String packageName) {
+        mTargetPackage = packageName;
+    }
+
+    public void setTargetClass(String className) {
+        mTargetClass = className;
+    }
+
+    public void setAction(String action) {
+        mAction = action;
+    }
+
+    @Override
+    protected void onClick() {
+        if (mTargetPackage != null && mTargetClass != null) {
+            Intent intent = new Intent();
+            intent.setClassName(mTargetPackage, mTargetClass);
+            if (mAction != null) {
+                intent.setAction(mAction);
+            }
+            getContext().startActivity(intent);
         }
     }
 }

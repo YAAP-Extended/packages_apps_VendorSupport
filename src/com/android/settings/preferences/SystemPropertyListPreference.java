@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 the risingOS Project
+ * Copyright (C) 2016-2019 crDroid Android Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.android.settings.preferences;
 
 import android.content.Context;
-import android.os.SystemProperties;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import androidx.preference.ListPreference;
 
 import com.android.settings.utils.AdaptivePreferenceUtils;
-import com.android.settingslib.development.SystemPropPoker;
 
-import lineageos.preference.SelfRemovingListPreference;
-
-public class SystemPropertyListPreference extends SelfRemovingListPreference {
+public class SystemPropertyListPreference extends ListPreference {
+    private boolean mShouldRemove = false;
+    private String mSystemProperty;
 
     public SystemPropertyListPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -47,21 +46,54 @@ public class SystemPropertyListPreference extends SelfRemovingListPreference {
         if (layoutRes != -1) {
             setLayoutResource(layoutRes);
         }
+        setShouldDisableView(true);
     }
 
     @Override
-    protected boolean isPersisted() {
-        return !SystemProperties.get(getKey(), "").isEmpty();
+    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
+        String value = SystemProperties.get(mSystemProperty);
+        if (TextUtils.isEmpty(value)) {
+            value = (String) defaultValue;
+            SystemProperties.set(mSystemProperty, value);
+        }
+        setValue(value);
+    }
+
+    public void setSystemProperty(String property) {
+        mSystemProperty = property;
     }
 
     @Override
-    protected void putString(String key, String value) {
-        SystemProperties.set(key, value);
-        SystemPropPoker.getInstance().poke();
+    public void setValue(String value) {
+        super.setValue(value);
+        SystemProperties.set(mSystemProperty, value);
     }
 
-    @Override
-    protected String getString(String key, String defaultValue) {
-        return SystemProperties.get(key, defaultValue);
+    public void setShouldRemove(boolean remove) {
+        mShouldRemove = remove;
+    }
+
+    public boolean shouldRemove() {
+        return mShouldRemove;
+    }
+
+    private static class SystemProperties {
+        public static String get(String key) {
+            try {
+                Class<?> systemProperties = Class.forName("android.os.SystemProperties");
+                return (String) systemProperties.getMethod("get", String.class).invoke(null, key);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        public static void set(String key, String value) {
+            try {
+                Class<?> systemProperties = Class.forName("android.os.SystemProperties");
+                systemProperties.getMethod("set", String.class, String.class).invoke(null, key, value);
+            } catch (Exception e) {
+                // Do nothing
+            }
+        }
     }
 }
