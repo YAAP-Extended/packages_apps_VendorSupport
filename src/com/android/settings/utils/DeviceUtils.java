@@ -18,8 +18,6 @@ package com.android.settings.utils;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_2BUTTON;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL;
 
-import static org.lineageos.internal.util.DeviceKeysConstants.*;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
@@ -48,6 +46,19 @@ import android.view.Surface;
 import java.util.List;
 
 public class DeviceUtils {
+
+    public static final int KEY_MASK_HOME = 0x01;
+    public static final int KEY_MASK_BACK = 0x02;
+    public static final int KEY_MASK_MENU = 0x04;
+    public static final int KEY_MASK_ASSIST = 0x08;
+    public static final int KEY_MASK_APP_SWITCH = 0x10;
+    public static final int KEY_MASK_CAMERA = 0x20;
+    public static final int KEY_MASK_VOLUME = 0x40;
+
+    private static final String HARDWARE_KEYS_CONFIG = "ro.vendor.hw.keys";
+    private static final String HARDWARE_WAKE_KEYS_CONFIG = "ro.vendor.hw.wakekeys";
+    private static final String BUTTON_BRIGHTNESS_CONFIG = "ro.vendor.hw.button_brightness";
+    private static final String KEYBOARD_BRIGHTNESS_CONFIG = "ro.vendor.hw.keyboard_brightness";
 
     /* returns whether the device has a centered display cutout or not. */
     public static boolean hasCenteredCutout(Context context) {
@@ -84,14 +95,11 @@ public class DeviceUtils {
     }
 
     public static int getDeviceKeys(Context context) {
-        return context.getResources()
-                .getInteger(org.lineageos.platform.internal.R.integer.config_deviceHardwareKeys);
+        return SystemProperties.getInt(HARDWARE_KEYS_CONFIG, 64);
     }
 
     public static int getDeviceWakeKeys(Context context) {
-        return context.getResources()
-                .getInteger(
-                        org.lineageos.platform.internal.R.integer.config_deviceHardwareWakeKeys);
+        return SystemProperties.getInt(HARDWARE_WAKE_KEYS_CONFIG, 64);
     }
 
     /* returns whether the device has power key or not. */
@@ -172,11 +180,7 @@ public class DeviceUtils {
     /* returns whether the device supports button backlight adjusment or not. */
     public static boolean hasButtonBacklightSupport(Context context) {
         final boolean buttonBrightnessControlSupported =
-                context.getResources()
-                                .getInteger(
-                                        org.lineageos.platform.internal.R.integer
-                                                .config_deviceSupportsButtonBrightnessControl)
-                        != 0;
+                SystemProperties.getBoolean(BUTTON_BRIGHTNESS_CONFIG, false);
 
         // All hardware keys besides volume and camera can possibly have a backlight
         return buttonBrightnessControlSupported
@@ -189,11 +193,7 @@ public class DeviceUtils {
 
     /* returns whether the device supports keyboard backlight adjusment or not. */
     public static boolean hasKeyboardBacklightSupport(Context context) {
-        return context.getResources()
-                        .getInteger(
-                                org.lineageos.platform.internal.R.integer
-                                        .config_deviceSupportsKeyboardBrightnessControl)
-                != 0;
+        return SystemProperties.getBoolean(KEYBOARD_BRIGHTNESS_CONFIG, false);
     }
 
     public static boolean isPackageInstalled(Context context, String pkg, boolean ignoreState) {

@@ -48,13 +48,11 @@ public class SystemSettingSwitchPreference extends SwitchPreference {
         setShouldDisableView(true);
     }
 
-    @Override
-    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        setChecked(getBoolean(getKey(), false));
+    protected void onSetInitialValue(boolean defaultValue) {
+        setChecked(getBoolean(getKey(), defaultValue));
     }
 
-    @Override
-    protected boolean isPersisted() {
+    public boolean isPersisted() {
         return Settings.System.getString(getContext().getContentResolver(), getKey()) != null;
     }
 
@@ -62,7 +60,6 @@ public class SystemSettingSwitchPreference extends SwitchPreference {
         return Settings.System.getInt(getContext().getContentResolver(), key, defaultValue ? 1 : 0) != 0;
     }
 
-    @Override
     public boolean persistBoolean(boolean value) {
         if (shouldPersist()) {
             Settings.System.putInt(getContext().getContentResolver(), getKey(), value ? 1 : 0);

@@ -37,7 +37,7 @@ public class TelephonyUtils {
 
     // from MobileNetworkSettings
     public static final String ACTION_PICK_NETWORK_MODE =
-            "lineageos.platform.intent.action.NETWORK_MODE_PICKER";
+            "com.android.settings.NETWORK_MODE_PICKER";
     public static final String EXTRA_NONE_TEXT = "network_mode_picker::neutral_text";
     public static final String EXTRA_SHOW_NONE = "network_mode_picker::show_none";
     public static final String EXTRA_INITIAL_NETWORK_VALUE = "network_mode_picker::selected_mode";

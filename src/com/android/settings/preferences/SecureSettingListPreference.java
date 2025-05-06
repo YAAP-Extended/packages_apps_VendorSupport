@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 crDroid Android Project
+ * Copyright (C) 2016-2019 crDroid Android Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.android.settings.preferences;
 
 import android.content.Context;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -26,7 +27,6 @@ import com.android.settings.utils.AdaptivePreferenceUtils;
 
 public class SecureSettingListPreference extends ListPreference {
 
-    private boolean isLineageSettings;
     private PreferenceDataStore dataStore;
     private boolean mAutoSummary = false;
 
@@ -46,11 +46,7 @@ public class SecureSettingListPreference extends ListPreference {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        isLineageSettings = AdaptivePreferenceUtils.isLineageSettings(context, attrs);
-        dataStore =
-                isLineageSettings
-                        ? new LineageSecureSettingsStore(context.getContentResolver())
-                        : new SecureSettingsStore(context.getContentResolver());
+        dataStore = new SecureSettingsStore(context.getContentResolver());
         setPreferenceDataStore(dataStore);
         int layoutRes = AdaptivePreferenceUtils.getLayoutResourceId(context, attrs);
         if (layoutRes != -1) {
@@ -78,10 +74,6 @@ public class SecureSettingListPreference extends ListPreference {
 
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        // This is what default ListPreference implementation is doing without respecting
-        // real default value:
-        // setValue(restoreValue ? getPersistedString(mValue) : (String) defaultValue);
-        // Instead, we better do
         setValue(restoreValue ? getPersistedString((String) defaultValue) : (String) defaultValue);
     }
 

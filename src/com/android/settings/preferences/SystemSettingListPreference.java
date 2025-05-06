@@ -25,8 +25,6 @@ import androidx.preference.PreferenceDataStore;
 import com.android.settings.utils.AdaptivePreferenceUtils;
 
 public class SystemSettingListPreference extends ListPreference {
-
-    private boolean isLineageSettings;
     private PreferenceDataStore dataStore;
     private boolean mAutoSummary = false;
 
@@ -46,11 +44,7 @@ public class SystemSettingListPreference extends ListPreference {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        isLineageSettings = AdaptivePreferenceUtils.isLineageSettings(context, attrs);
-        dataStore =
-                isLineageSettings
-                        ? new LineageSystemSettingsStore(context.getContentResolver())
-                        : new SystemSettingsStore(context.getContentResolver());
+        dataStore = new SystemSettingsStore(context.getContentResolver());
         setPreferenceDataStore(dataStore);
         int layoutRes = AdaptivePreferenceUtils.getLayoutResourceId(context, attrs);
         if (layoutRes != -1) {

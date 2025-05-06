@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 crDroid Android Project
+ * Copyright (C) 2016-2019 crDroid Android Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,61 +17,65 @@ package com.android.settings.preferences;
 
 import android.content.ContentResolver;
 import android.os.UserHandle;
-import android.preference.PreferenceDataStore;
 import android.provider.Settings;
 
-public class SecureSettingsStore extends androidx.preference.PreferenceDataStore
-        implements PreferenceDataStore {
+import androidx.preference.PreferenceDataStore;
 
+public class SecureSettingsStore extends PreferenceDataStore {
     private ContentResolver mContentResolver;
 
     public SecureSettingsStore(ContentResolver contentResolver) {
         mContentResolver = contentResolver;
     }
 
-    public boolean getBoolean(String key, boolean defValue) {
-        return Settings.Secure.getIntForUser(
-                        mContentResolver, key, defValue ? 1 : 0, UserHandle.USER_CURRENT)
-                != 0;
+    @Override
+    public void putString(String key, String value) {
+        Settings.Secure.putString(mContentResolver, key, value);
     }
 
-    public float getFloat(String key, float defValue) {
-        return Settings.Secure.getFloatForUser(
-                mContentResolver, key, defValue, UserHandle.USER_CURRENT);
+    @Override
+    public void putInt(String key, int value) {
+        Settings.Secure.putInt(mContentResolver, key, value);
     }
 
-    public int getInt(String key, int defValue) {
-        return Settings.Secure.getIntForUser(
-                mContentResolver, key, defValue, UserHandle.USER_CURRENT);
+    @Override
+    public void putLong(String key, long value) {
+        Settings.Secure.putLong(mContentResolver, key, value);
     }
 
-    public long getLong(String key, long defValue) {
-        return Settings.Secure.getLongForUser(
-                mContentResolver, key, defValue, UserHandle.USER_CURRENT);
+    @Override
+    public void putFloat(String key, float value) {
+        Settings.Secure.putFloat(mContentResolver, key, value);
     }
 
-    public String getString(String key, String defValue) {
-        String result = Settings.Secure.getString(mContentResolver, key);
-        return result == null ? defValue : result;
-    }
-
+    @Override
     public void putBoolean(String key, boolean value) {
         putInt(key, value ? 1 : 0);
     }
 
-    public void putFloat(String key, float value) {
-        Settings.Secure.putFloatForUser(mContentResolver, key, value, UserHandle.USER_CURRENT);
+    @Override
+    public String getString(String key, String defaultValue) {
+        String value = Settings.Secure.getString(mContentResolver, key);
+        return value == null ? defaultValue : value;
     }
 
-    public void putInt(String key, int value) {
-        Settings.Secure.putIntForUser(mContentResolver, key, value, UserHandle.USER_CURRENT);
+    @Override
+    public int getInt(String key, int defaultValue) {
+        return Settings.Secure.getInt(mContentResolver, key, defaultValue);
     }
 
-    public void putLong(String key, long value) {
-        Settings.Secure.putLongForUser(mContentResolver, key, value, UserHandle.USER_CURRENT);
+    @Override
+    public long getLong(String key, long defaultValue) {
+        return Settings.Secure.getLong(mContentResolver, key, defaultValue);
     }
 
-    public void putString(String key, String value) {
-        Settings.Secure.putString(mContentResolver, key, value);
+    @Override
+    public float getFloat(String key, float defaultValue) {
+        return Settings.Secure.getFloat(mContentResolver, key, defaultValue);
+    }
+
+    @Override
+    public boolean getBoolean(String key, boolean defaultValue) {
+        return getInt(key, defaultValue ? 1 : 0) != 0;
     }
 }
